@@ -1,3 +1,7 @@
+# Unreleased
+
+- Add a local cursor transform for smoother experience on high-latency connections
+
 # 2.1.0
 
 - Add custom CSS class option
