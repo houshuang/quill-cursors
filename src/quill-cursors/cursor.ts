@@ -46,8 +46,10 @@ export default class Cursor {
 
     element.getElementsByClassName(Cursor.NAME_CLASS)[0].textContent = this.name;
 
-    flagElement.style.transitionDelay = `${options.hideDelayMs}ms`;
-    flagElement.style.transitionDuration = `${options.hideSpeedMs}ms`;
+    if (!options.noFading) {
+      flagElement.style.transitionDelay = `${options.hideDelayMs}ms`;
+      flagElement.style.transitionDuration = `${options.hideSpeedMs}ms`;
+    }
 
     this._el = element;
     this._selectionEl = selectionElement;
