@@ -48,18 +48,6 @@ const moduleBundle = {
 };
 
 if (environment === 'production') {
-  moduleBundle.module.rules.push({
-    test: /\.ts$/,
-    exclude: /node_modules/,
-    use: [{
-      loader: 'tslint-loader',
-      options: {
-        emitErrors: true,
-        formatter: 'stylish',
-        tsConfigFile: 'tsconfig.base.json',
-      },
-    }],
-  });
 
   delete moduleBundle.devtool;
 }

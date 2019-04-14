@@ -1,9 +1,9 @@
-import IQuillCursorsOptions from './i-quill-cursors-options';
-import Cursor from './cursor';
-import IQuillRange from './i-range';
-import * as RangeFix from 'rangefix';
-import template from './template';
-import { ResizeObserver } from 'resize-observer';
+import IQuillCursorsOptions from "./i-quill-cursors-options";
+import Cursor from "./cursor";
+import IQuillRange from "./i-range";
+import * as RangeFix from "rangefix";
+import template from "./template";
+import { ResizeObserver } from "resize-observer";
 
 export default class QuillCursors {
   private readonly _cursors: { [id: string]: Cursor } = {};
@@ -46,6 +46,15 @@ export default class QuillCursors {
     this._updateCursor(cursor);
   }
 
+  public flashCursor(id: string) {
+    const cursor = this._cursors[id];
+    if (!cursor) {
+      return;
+    }
+
+    cursor.flash();
+  }
+
   public removeCursor(id: string) {
     const cursor = this._cursors[id];
     if (!cursor) {
@@ -65,8 +74,7 @@ export default class QuillCursors {
   }
 
   public cursors() {
-    return Object.keys(this._cursors)
-      .map(key => this._cursors[key]);
+    return Object.keys(this._cursors).map(key => this._cursors[key]);
   }
 
   private _registerSelectionChangeListeners() {
@@ -87,16 +95,17 @@ export default class QuillCursors {
       this._quill.constructor.events.TEXT_CHANGE,
       // Wrap in a timeout to give the text change an opportunity to finish
       // before checking for the current selection
-      () => window.setTimeout(() => {
-        this._emitSelection();
-        this.update();
-      })
+      () =>
+        window.setTimeout(() => {
+          this._emitSelection();
+          this.update();
+        })
     );
   }
 
   private _registerDomListeners() {
-    const editor = this._quill.container.getElementsByClassName('ql-editor')[0];
-    editor.addEventListener('scroll', () => this.update());
+    const editor = this._quill.container.getElementsByClassName("ql-editor")[0];
+    editor.addEventListener("scroll", () => this.update());
     const resizeObserver = new ResizeObserver(() => this.update());
     resizeObserver.observe(editor);
   }
@@ -107,7 +116,9 @@ export default class QuillCursors {
     }
 
     const startIndex = this._indexWithinQuillBounds(cursor.range.index);
-    const endIndex = this._indexWithinQuillBounds(cursor.range.index + cursor.range.length);
+    const endIndex = this._indexWithinQuillBounds(
+      cursor.range.index + cursor.range.length
+    );
 
     const startLeaf = this._quill.getLeaf(startIndex);
     const endLeaf = this._quill.getLeaf(endIndex);
@@ -153,14 +164,19 @@ export default class QuillCursors {
     options = Object.assign({}, options);
 
     options.template = options.template || template;
-    options.containerClass = options.containerClass || 'ql-cursors';
+    options.containerClass = options.containerClass || "ql-cursors";
 
     if (options.selectionChangeSource !== null) {
-      options.selectionChangeSource = options.selectionChangeSource || this._quill.constructor.sources.API;
+      options.selectionChangeSource =
+        options.selectionChangeSource || this._quill.constructor.sources.API;
     }
 
-    options.hideDelayMs = Number.isInteger(options.hideDelayMs) ? options.hideDelayMs : 3000;
-    options.hideSpeedMs = Number.isInteger(options.hideSpeedMs) ? options.hideSpeedMs : 400;
+    options.hideDelayMs = Number.isInteger(options.hideDelayMs)
+      ? options.hideDelayMs
+      : 3000;
+    options.hideSpeedMs = Number.isInteger(options.hideSpeedMs)
+      ? options.hideSpeedMs
+      : 400;
 
     return options;
   }

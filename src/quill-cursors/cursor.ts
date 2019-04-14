@@ -1,19 +1,19 @@
-import IQuillCursorsOptions from './i-quill-cursors-options';
-import IQuillRange from './i-range';
-import * as tinycolor from 'tinycolor2';
+import IQuillCursorsOptions from "./i-quill-cursors-options";
+import IQuillRange from "./i-range";
+import * as tinycolor from "tinycolor2";
 
 export default class Cursor {
-  public static readonly CONTAINER_ELEMENT_TAG = 'SPAN';
-  public static readonly SELECTION_ELEMENT_TAG = 'SPAN';
-  public static readonly CURSOR_CLASS = 'ql-cursor';
-  public static readonly SELECTION_CLASS = 'ql-cursor-selections';
-  public static readonly SELECTION_BLOCK_CLASS = 'ql-cursor-selection-block';
-  public static readonly CARET_CLASS = 'ql-cursor-caret';
-  public static readonly CARET_CONTAINER_CLASS = 'ql-cursor-caret-container';
-  public static readonly FLAG_CLASS = 'ql-cursor-flag';
-  public static readonly FLAG_FLAP_CLASS = 'ql-cursor-flag-flap';
-  public static readonly NAME_CLASS = 'ql-cursor-name';
-  public static readonly HIDDEN_CLASS = 'hidden';
+  public static readonly CONTAINER_ELEMENT_TAG = "SPAN";
+  public static readonly SELECTION_ELEMENT_TAG = "SPAN";
+  public static readonly CURSOR_CLASS = "ql-cursor";
+  public static readonly SELECTION_CLASS = "ql-cursor-selections";
+  public static readonly SELECTION_BLOCK_CLASS = "ql-cursor-selection-block";
+  public static readonly CARET_CLASS = "ql-cursor-caret";
+  public static readonly CARET_CONTAINER_CLASS = "ql-cursor-caret-container";
+  public static readonly FLAG_CLASS = "ql-cursor-flag";
+  public static readonly FLAG_FLAP_CLASS = "ql-cursor-flag-flap";
+  public static readonly NAME_CLASS = "ql-cursor-name";
+  public static readonly HIDDEN_CLASS = "hidden";
 
   public readonly id: string;
   public readonly name: string;
@@ -24,27 +24,39 @@ export default class Cursor {
   private _selectionEl: HTMLElement;
   private _caretEl: HTMLElement;
   private _flagEl: HTMLElement;
+  private timer: any;
 
   public constructor(id: string, name: string, color: string) {
     this.id = id;
     this.name = name;
     this.color = color;
+    this.timer = null;
   }
 
   public build(options: IQuillCursorsOptions): HTMLElement {
     const element = document.createElement(Cursor.CONTAINER_ELEMENT_TAG);
     element.classList.add(Cursor.CURSOR_CLASS);
-    element.id = `ql-cursor-${ this.id }`;
+    element.id = `ql-cursor-${this.id}`;
     element.innerHTML = options.template;
-    const selectionElement = element.getElementsByClassName(Cursor.SELECTION_CLASS)[0] as HTMLElement;
-    const caretContainerElement = element.getElementsByClassName(Cursor.CARET_CONTAINER_CLASS)[0] as HTMLElement;
-    const caretElement = caretContainerElement.getElementsByClassName(Cursor.CARET_CLASS)[0] as HTMLElement;
-    const flagElement = element.getElementsByClassName(Cursor.FLAG_CLASS)[0] as HTMLElement;
+    const selectionElement = element.getElementsByClassName(
+      Cursor.SELECTION_CLASS
+    )[0] as HTMLElement;
+    const caretContainerElement = element.getElementsByClassName(
+      Cursor.CARET_CONTAINER_CLASS
+    )[0] as HTMLElement;
+    const caretElement = caretContainerElement.getElementsByClassName(
+      Cursor.CARET_CLASS
+    )[0] as HTMLElement;
+    const flagElement = element.getElementsByClassName(
+      Cursor.FLAG_CLASS
+    )[0] as HTMLElement;
 
     flagElement.style.backgroundColor = this.color;
     caretElement.style.backgroundColor = this.color;
 
-    element.getElementsByClassName(Cursor.NAME_CLASS)[0].textContent = this.name;
+    element.getElementsByClassName(
+      Cursor.NAME_CLASS
+    )[0].textContent = this.name;
 
     flagElement.style.transitionDelay = `${options.hideDelayMs}ms`;
     flagElement.style.transitionDuration = `${options.hideSpeedMs}ms`;
@@ -59,6 +71,26 @@ export default class Cursor {
 
   public show() {
     this._el.classList.remove(Cursor.HIDDEN_CLASS);
+  }
+
+  private _fade(flagEl: HTMLElement) {
+    this._flagEl.style.transition = "visibility 0s 1s, opacity 1s linear";
+    flagEl.style.opacity = "0";
+    flagEl.style.visibility = "hidden";
+  }
+
+  private _delayedFade() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+    this.timer = setTimeout(() => this._fade(this._flagEl), 2000);
+  }
+
+  public flash() {
+    this._flagEl.style.transition = "visibility 0s 0s, opacity 0.3s linear";
+    this._flagEl.style.opacity = "1";
+    this._flagEl.style.visibility = "visible";
+    this._delayedFade();
   }
 
   public hide() {
@@ -82,8 +114,9 @@ export default class Cursor {
     this._clearSelection();
     selections = selections || [];
 
-    Array.from(selections)
-      .forEach((selection: ClientRect) => this._addSelection(selection, container));
+    Array.from(selections).forEach((selection: ClientRect) =>
+      this._addSelection(selection, container)
+    );
   }
 
   private _clearSelection() {
@@ -95,7 +128,10 @@ export default class Cursor {
     this._selectionEl.appendChild(selectionBlock);
   }
 
-  private _selectionBlock(selection: ClientRect, container: ClientRect): HTMLElement {
+  private _selectionBlock(
+    selection: ClientRect,
+    container: ClientRect
+  ): HTMLElement {
     const element = document.createElement(Cursor.SELECTION_ELEMENT_TAG);
 
     element.classList.add(Cursor.SELECTION_BLOCK_CLASS);
@@ -103,7 +139,9 @@ export default class Cursor {
     element.style.left = `${selection.left - container.left}px`;
     element.style.width = `${selection.width}px`;
     element.style.height = `${selection.height}px`;
-    element.style.backgroundColor = tinycolor(this.color).setAlpha(0.3).toString();
+    element.style.backgroundColor = tinycolor(this.color)
+      .setAlpha(0.3)
+      .toString();
 
     return element;
   }
